@@ -1,4 +1,5 @@
 using GammaRaySignaling;using GammaRaySignaling.Controllers;
+using GammaRaySignaling.Websocket;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,5 +23,27 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseWebSockets();
+
+app.MapGet("/ping", () => "pong").WithName("ping");
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/signaling")
+    {
+        if (context.WebSockets.IsWebSocketRequest)
+        {
+            var websocket = await context.WebSockets.AcceptWebSocketAsync();
+            var handler = new WebSocketHandler();
+            await handler.Handle(websocket);
+        }
+        else
+        {
+            context.Response.StatusCode = 400;
+        }
+    }
+    else
+    {
+        await next();
+    }
+});
 
 app.Run();
