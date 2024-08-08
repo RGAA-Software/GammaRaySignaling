@@ -1,7 +1,10 @@
 using GammaRaySignaling;using GammaRaySignaling.Controllers;
 using GammaRaySignaling.Websocket;
+using AppContext = GammaRaySignaling.AppContext;
 
 var builder = WebApplication.CreateBuilder(args);
+var appContext = new AppContext();
+appContext.Init();
 
 // Add services to the container.
 
@@ -32,7 +35,7 @@ app.Use(async (context, next) =>
         if (context.WebSockets.IsWebSocketRequest)
         {
             var websocket = await context.WebSockets.AcceptWebSocketAsync();
-            var handler = new WebSocketHandler();
+            var handler = new WebSocketHandler(appContext);
             await handler.Handle(websocket);
         }
         else

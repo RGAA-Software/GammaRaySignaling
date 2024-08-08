@@ -6,20 +6,26 @@ using System.Net.WebSockets;
 
 public class WebSocketHandler
 {
-    private WebSocket webSocket;
+    private WebSocket _webSocket;
+    private AppContext _appContext;
+    
+    public WebSocketHandler(AppContext ctx)
+    {
+        _appContext = ctx;
+    }
 
     public async Task Handle(WebSocket ws)
     {
-        webSocket = ws;
-        while (webSocket.State == WebSocketState.Open)
+        _webSocket = ws;
+        while (_webSocket.State == WebSocketState.Open)
         {
             var buffer = new ArraySegment<byte>(new byte[1024]);
-            var result = await webSocket.ReceiveAsync(buffer, CancellationToken.None);
+            var result = await _webSocket.ReceiveAsync(buffer, CancellationToken.None);
             if (result.MessageType == WebSocketMessageType.Text)
             {
                 var message = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
                 Console.WriteLine($"message: {message}");
-                await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+                await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
 
             } else if (result.MessageType == WebSocketMessageType.Binary)
             {
