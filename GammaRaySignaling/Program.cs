@@ -1,6 +1,17 @@
 using GammaRaySignaling;using GammaRaySignaling.Controllers;
 using GammaRaySignaling.Websocket;
 using AppContext = GammaRaySignaling.AppContext;
+using Serilog;
+
+// 初始化日志的共享实例
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .Enrich.FromLogContext()
+    .WriteTo.File("logs/app.log", 
+        rollingInterval: RollingInterval.Day,
+        shared: true
+    ).CreateLogger();
+Log.Information("Info");
 
 var builder = WebApplication.CreateBuilder(args);
 var appContext = new AppContext();
@@ -27,7 +38,12 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseWebSockets();
 
-app.MapGet("/ping", () => "pong").WithName("ping");
+app.MapGet("/ping", () => 
+{
+    Log.Information("Ping...");
+    return "pong"; 
+}).WithName("ping");
+
 app.Use(async (context, next) =>
 {
     if (context.Request.Path == "/signaling")

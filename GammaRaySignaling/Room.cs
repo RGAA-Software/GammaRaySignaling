@@ -2,51 +2,67 @@
 
 public class Room
 {
-    public String id;
-    public String name;
-    public List<Client> clients = new List<Client>();
-    private object _clientMutex = new object(); 
+    public string Id = "";
+    public string Name = "";
+    private readonly Dictionary<string, Client> _clients = new Dictionary<string, Client>();
+    private readonly object _clientMutex = new object(); 
 
     public void AddClient(Client client)
     {
-        
+        lock (_clientMutex)
+        {
+            if (_clients.ContainsKey(client.Id))
+            {
+                // todo: warn it
+                client.Close();
+                _clients.Remove(client.Id);
+            }
+            _clients[client.Id] = client;
+        }
     }
 
-    public void RemoveClient(String clientId)
+    public void RemoveClient(string clientId)
     {
-        
+        lock (_clientMutex)
+        {
+            if (_clients.ContainsKey(clientId))
+            {
+                var client = _clients[clientId];
+                client.Close();
+                _clients.Remove(clientId);
+            }
+        }
     }
 
     public void VisitClients(Action<Client> callback)
     {
-        foreach (Client client in clients)
+        foreach (var pair in _clients)
         {
-            callback(client);
+            callback(pair.Value);
         }
     }
 
-    public void NotifyAll(String msg)
+    public void NotifyAll(string msg)
     {
         lock (_clientMutex)
         {
             VisitClients(client =>
             {
-            
+                client.Notify(msg);
             });
         }
     }
 
-    public void NotifyExcept(String exceptId, String msg)
+    public void NotifyExcept(string exceptId, string msg)
     {
         lock (_clientMutex)
         {
             VisitClients(client =>
             {
-                if (client.id == exceptId)
+                if (client.Id != exceptId)
                 {
-                    return;
+                    client.Notify(msg);   
                 }
-                client.Notify(msg);
             });
         }
     }
@@ -55,18 +71,18 @@ public class Room
     {
         lock (_clientMutex)
         {
-            return [..clients];
+            return [.._clients.Values];
         }
     }
 
-    public List<Client> GetClientsExcept(String exceptId)
+    public List<Client> GetClientsExcept(string exceptId)
     {
         var targetClients = new List<Client>();
         lock (_clientMutex)
         {
             VisitClients(client =>
             {
-                if (client.id != exceptId)
+                if (client.Id != exceptId)
                 {
                     targetClients.Add(client);
                 }

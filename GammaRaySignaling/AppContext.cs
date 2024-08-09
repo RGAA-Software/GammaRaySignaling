@@ -7,11 +7,11 @@ public class AppContext
 
     public AppContext()
     {
+        _clientManager = new ClientManager(this);
+        _roomManager = new RoomManager(this);
     }
 
     public void Init()
     {
-        _clientManager = new ClientManager();
-        _roomManager = new RoomManager();
     }
 }

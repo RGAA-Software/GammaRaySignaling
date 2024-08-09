@@ -4,15 +4,10 @@ namespace GammaRaySignaling.Websocket;
 
 using System.Net.WebSockets;
 
-public class WebSocketHandler
+public class WebSocketHandler(AppContext ctx)
 {
-    private WebSocket _webSocket;
-    private AppContext _appContext;
-    
-    public WebSocketHandler(AppContext ctx)
-    {
-        _appContext = ctx;
-    }
+    private WebSocket? _webSocket = null;
+    private AppContext _appContext = ctx;
 
     public async Task Handle(WebSocket ws)
     {
@@ -21,7 +16,7 @@ public class WebSocketHandler
         {
             var buffer = new ArraySegment<byte>(new byte[1024]);
             var result = await _webSocket.ReceiveAsync(buffer, CancellationToken.None);
-            if (result.MessageType == WebSocketMessageType.Text)
+            if (result.MessageType == WebSocketMessageType.Text && buffer.Array != null)
             {
                 var message = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
                 Console.WriteLine($"message: {message}");
