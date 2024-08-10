@@ -14,4 +14,14 @@ public class AppContext
     public void Init()
     {
     }
+
+    public ClientManager GetClientManager()
+    {
+        return _clientManager;
+    }
+
+    public RoomManager GetRoomManager()
+    {
+        return _roomManager;
+    }
 }

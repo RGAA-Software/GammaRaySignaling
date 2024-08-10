@@ -13,7 +13,7 @@ public class RoomManager(AppContext ctx)
 
     public Room CreateRoom(string clientId, string remoteClientId)
     {
-        var targetRoomId = GenRoomId(clientId);
+        var targetRoomId = GenRoomId(remoteClientId);
         lock (_roomsMutex)
         {
             foreach (var pair in _rooms)

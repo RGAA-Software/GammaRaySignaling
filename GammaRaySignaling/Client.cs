@@ -1,42 +1,43 @@
 ﻿using System.Net.WebSockets;
+using GammaRaySignaling.Websocket;
 
 namespace GammaRaySignaling;
 
 public class Client
 {
     public string Id = "";
+    public string Token = "";
     public string Name = "";
     public string Role = "";
     public string Platform = "";
     public string RoomId = "";
     public long UpdateTimestamp = 0;
-    private WebSocket? _webSocket = null;
+    private WebSocketHandler? _wsHandler = null;
 
-    public void SetWebSocket(WebSocket? socket)
+    public void SetWebSocket(WebSocketHandler? socket)
     {
-        _webSocket = socket;
+        _wsHandler = socket;
     }
     
     public async void Notify(string msg)
     {
-        if (_webSocket == null)
+        if (_wsHandler == null)
         {
             return;
         }
-        var buffer = new ArraySegment<byte>(new byte[msg.Length]);
-        await _webSocket.SendAsync(buffer, WebSocketMessageType.Binary, true, CancellationToken.None);
+        _wsHandler.SendMessage(msg);
     }
 
     public void OnHeartBeat(SignalMessage.SigHeartBeatMessage msg)
     {
-        this.UpdateTimestamp = Common.GetCurrentTimestamp();
-        if (this.Id != msg.ClientId && msg.ClientId.Length > 0)
+        UpdateTimestamp = Common.GetCurrentTimestamp();
+        if (Id != msg.ClientId && msg.ClientId.Length > 0)
         {
-            this.Id = msg.ClientId;
+            Id = msg.ClientId;
         }
 
         var backMsg = SignalMessage.MakeOnHeartBeatMessage(msg);
-        this.SendMessage(backMsg);
+        SendMessage(backMsg);
     }
 
     public bool IsOnline()
@@ -47,15 +48,11 @@ public class Client
 
     public void SendMessage(string msg)
     {
-        this.Notify(msg);
+        Notify(msg);
     }
 
-    public async void Close()
+    public void Close()
     {
-        var task = _webSocket?.CloseAsync(WebSocketCloseStatus.NormalClosure, "Close", CancellationToken.None);
-        if (task != null)
-        {
-            await task;
-        }
+        _wsHandler?.Close();
     }
 }

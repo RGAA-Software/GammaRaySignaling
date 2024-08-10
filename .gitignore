@@ -2,3 +2,5 @@
 GammaRaySignaling/bin/*
 GammaRaySignaling/obj/*
 GammaRaySignaling/logs/*
+GammaRayTests/obj/*
+GammaRayTests/bin/*

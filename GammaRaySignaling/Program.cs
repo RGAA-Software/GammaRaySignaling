@@ -40,8 +40,10 @@ app.UseWebSockets();
 
 app.MapGet("/ping", () => 
 {
-    Log.Information("Ping...");
-    return "pong"; 
+    return Common.MakeOkJsonMessage(new Dictionary<string, string>
+    {
+        {"message", "pong"},
+    }); 
 }).WithName("ping");
 
 app.Use(async (context, next) =>

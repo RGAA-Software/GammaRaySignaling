@@ -52,4 +52,9 @@ public class Errors
     {
         return ErrorStringExtra(err, "");
     }
+
+    public static string MakeKnownErrorMessage(int code)
+    {
+        return Common.MakeJsonMessage(code, ErrorString(code), new Dictionary<string, string>());
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace GammaRaySignaling;
 
@@ -26,5 +27,21 @@ public class Common
             sb.Append(t.ToString("x2"));
         }
         return sb.ToString();
+    }
+
+    public static string MakeJsonMessage(int code, string msg, Dictionary<string, string> value)
+    {
+        var resp = new Dictionary<string, object>
+        {
+            {"code", code},
+            {"msg", msg},
+            {"value", value}
+        };
+        return JsonSerializer.Serialize(resp);
+    }
+
+    public static string MakeOkJsonMessage(Dictionary<string, string> value)
+    {
+        return MakeJsonMessage(200, "Ok", value);
     }
 }

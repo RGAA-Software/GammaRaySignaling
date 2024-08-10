@@ -51,18 +51,24 @@ public class SignalMessage
     public const string KeyRoom = "room";
     public const string KeyRooms = "rooms";
     public const string KeyAllowReSend = "allow_resend";
+    public const string KeyToken = "token";
     
-    public class SigErrorMessage
+    public class SigBaseMessage
     {
         public string SigName = "";
+        public string Token = "";
+        public string OriginMessage = "";
+    }
+    
+    public class SigErrorMessage : SigBaseMessage
+    {
         public int SigCode;
         public string SigInfo = "";
     }
-    
+
     // SigHelloMessage hello消息
     // client -> server
-    public class SigHelloMessage {
-        public string SigName = "";
+    public class SigHelloMessage : SigBaseMessage {
         public string ClientId = "";
         public string Platform = "";
         public bool AllowReSend = false;
@@ -70,25 +76,23 @@ public class SignalMessage
     
     // SigOnHelloMessage hello回复
     // server -> client
-    public class SigOnHelloMessage
+    public class SigOnHelloMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
     }
     
     // SigCreateRoomMessage 请求创建一个房间，如果已经存在，则直接返回
     // client -> server
-    public class SigCreateRoomMessage
+    public class SigCreateRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RemoteClientId = "";
     }
     
     // SigOnCreatedRoomMessage 创建完成回调给发起创建者
     // server -> client
-    public class SigOnCreatedRoomMessage {
-        public string SigName = "";
+    public class SigOnCreatedRoomMessage : SigBaseMessage 
+    {
         public string ClientId = "";
         public string RemoteClientId = "";
         public string RoomId = "";
@@ -98,9 +102,8 @@ public class SignalMessage
     
     // SigJoinRoomMessage 加入一个房间
     // client -> server
-    public class SigJoinRoomMessage
+    public class SigJoinRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RemoteClientId = "";
         public string RoomId = "";
@@ -108,9 +111,8 @@ public class SignalMessage
     
     // SigOnJoinedRoomMessage 加入一个房间后，回调给请求加入的人
     // server -> client
-    public class SigOnJoinedRoomMessage
+    public class SigOnJoinedRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RemoteClientId = "";
         public string RoomId = "";
@@ -119,9 +121,8 @@ public class SignalMessage
     
     // SigOnRemoteJoinedRoomMessage 其他成员加入
     // server -> client
-    public class SigOnRemoteJoinedRoomMessage
+    public class SigOnRemoteJoinedRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string RemoteClientId = "";
         public string RoomId = "";
         public List<Client> Clients = [];
@@ -129,18 +130,16 @@ public class SignalMessage
     
     // SigLeaveRoomMessage 请求离开房间
     // client -> server
-    public class SigLeaveRoomMessage
+    public class SigLeaveRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RoomId = "";
     }
     
     // SigOnLeftRoomMessage 自己离开房间
     // server -> client
-    public class SigOnLeftRoomMessage
+    public class SigOnLeftRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RoomId = "";
         public List<Client> Clients = [];
@@ -148,9 +147,8 @@ public class SignalMessage
 
     // SigOnRemoteLeftRoomMessage 其他成员离开
     // server -> client
-    public class SigOnRemoteLeftRoomMessage
+    public class SigOnRemoteLeftRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string RemoteClientId = "";
         public string RoomId = "";
         public List<Client> Clients = [];
@@ -158,9 +156,8 @@ public class SignalMessage
 
     // SigInviteClientMessage 邀请其他人加入房间
     // client -> server
-    public class SigInviteClientMessage 
+    public class SigInviteClientMessage : SigBaseMessage  
     {
-        public string SigName = "";
         public string ClientId = ""; 
         public string RemoteClientId = ""; 
         public string RoomId = "";
@@ -168,9 +165,8 @@ public class SignalMessage
     
     // SigOnInvitedToRoomMessage 被邀请的人收到这个回调
     // server -> peer client
-    public class SigOnInvitedToRoomMessage
+    public class SigOnInvitedToRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string InvitorClientId = "";
         public string SelfClientId = "";
         public string RoomId = "";
@@ -179,9 +175,8 @@ public class SignalMessage
     
     // SigOnRemoteInvitedToRoomMessage 发起邀请的人收到这个回调
     // server -> request client
-    public class SigOnRemoteInvitedToRoomMessage
+    public class SigOnRemoteInvitedToRoomMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RemoteClientId = "";
         public string RoomId = "";
@@ -190,9 +185,8 @@ public class SignalMessage
     
     // SigHeartBeatMessage 心跳
     // client -> server
-    public class SigHeartBeatMessage
+    public class SigHeartBeatMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public long Index = 0;
         public string Platform = "";
@@ -200,9 +194,8 @@ public class SignalMessage
     
     // SigOnHeartBeatMessage 心跳回复
     // server -> client
-    public class SigOnHeartBeatMessage
+    public class SigOnHeartBeatMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public long Index = 0;
         public string Platform = "";
@@ -210,9 +203,8 @@ public class SignalMessage
 
     // SigOfferSdpMessage 客户端发过来的Sdp
     // client -> server -> remote client
-    public class SigOfferSdpMessage
+    public class SigOfferSdpMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RoomId = "";
         public string Sdp = "";
@@ -220,9 +212,8 @@ public class SignalMessage
     
     // SigAnswerSdpMessage 服务端响应的Sdp
     // remote client -> server -> client
-    public class SigAnswerSdpMessage
+    public class SigAnswerSdpMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string  ClientId = "";
         public string RoomId = "";
         public string Sdp = "";
@@ -230,9 +221,8 @@ public class SignalMessage
     
     // SigIceMessage 两端交互的ICE
     // client <---> remote client
-    public class SigIceMessage
+    public class SigIceMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RoomId = "";
         public string Ice = "";
@@ -242,94 +232,90 @@ public class SignalMessage
 
     // SigForceIFrameMessage 产生关键帧
     // client <---> remote client
-    public class SigForceIFrameMessage
+    public class SigForceIFrameMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RoomId = "";
     }
     
     // SigCommandMessage 控制或命令
-    public class SigCommandMessage
+    public class SigCommandMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string Command = "";
         public Dictionary<string, string>? Extra = null;
     }
     
     // SigOnCommandResponseMessage 执行结果
-    public class SigOnCommandResponseMessage
+    public class SigOnCommandResponseMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string Command = "";
         public Dictionary<string, string>? Info = null;
     }
     
     // SigReqControlMessage client -> server 请求控制
-    public class SigReqControlMessage
+    public class SigReqControlMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string RemoteClientId = "";
     }
     
     // SigUnderControlMessage server -> client 请求控制
-    public class SigUnderControlMessage
+    public class SigUnderControlMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string SelfClientId = "";
         public string ControllerId = "";
     }
     
     // SigOnRemoteDataChannelReadyMessage server -> client 数据通道已经建立
-    public class SigOnRemoteDataChannelReadyMessage
+    public class SigOnRemoteDataChannelReadyMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string SelfClientId = "";
         public string ControllerId = "";
         public string RoomId = "";
     }
     
     // SigOnRejectControlMessage server -> client
-    public class SigOnRejectControlMessage
+    public class SigOnRejectControlMessage : SigBaseMessage 
     {
-        public string SigName = "";
         public string ClientId = "";
         public string ControllerId = "";
         public string RoomId = "";
     }
 
-    public static string MakeOnSigKnownErrorMessage(int code)
+    public static string MakeOnSigKnownErrorMessage(string token, int code)
     {
-        return MakeOnSigErrorMessage(code, Errors.ErrorString(code));
+        return MakeOnSigErrorMessage(token, code, Errors.ErrorString(code));
     }
 
-    public static string MakeOnSigErrorMessage(int code, string info)
+    public static string MakeOnSigErrorMessage(string token, int code, string info)
     {
         var msg = new SigErrorMessage
         {
             SigName = SigNameError,
+            Token = token,
             SigCode = code,
             SigInfo = info
         };
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnHelloMessage(string clientId)
+    public static string MakeOnHelloMessage(string token, string clientId)
     {
         var msg = new SigOnHelloMessage
         {
             SigName = SigNameOnHello,
+            Token = token,
             ClientId = clientId,
         };
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnCreatedRoomMessage(string clientId, string remoteClientId, Room room)
+    public static string MakeOnCreatedRoomMessage(string token, string clientId, string remoteClientId, Room room)
     {
         var msg = new SigOnCreatedRoomMessage
         {
             SigName = SigNameOnCreatedRoom,
+            Token = token,
             ClientId = clientId,
             RemoteClientId = remoteClientId,
             RoomId = room.Id,
@@ -343,17 +329,19 @@ public class SignalMessage
         var msg = new SigOnHeartBeatMessage
         {
             SigName = SigNameOnHeartBeat,
+            Token = hbMsg.Token,
             ClientId = hbMsg.ClientId,
             Index = hbMsg.Index
         };
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnJoinedRoomMessage(Room room, string clientId, string remoteClientId)
+    public static string MakeOnJoinedRoomMessage(string token, Room room, string clientId, string remoteClientId)
     {
         var msg = new SigOnJoinedRoomMessage
         {
             SigName = SigNameOnJoinedRoom,
+            Token = token,
             RoomId = room.Id,
             ClientId = clientId,
             RemoteClientId = remoteClientId,
@@ -362,11 +350,12 @@ public class SignalMessage
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnRemoteJoinedRoomMessage(Room room, string remoteClientId)
+    public static string MakeOnRemoteJoinedRoomMessage(string token, Room room, string remoteClientId)
     {
         var msg = new SigOnRemoteJoinedRoomMessage
         {
             SigName = SigNameOnRemoteJoinedRoom,
+            Token = token,
             RoomId = room.Id,
             RemoteClientId = remoteClientId,
             Clients = room.GetClients(),
@@ -374,11 +363,12 @@ public class SignalMessage
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnLeftRoomMessage(Room room, string clientId)
+    public static string MakeOnLeftRoomMessage(string token, Room room, string clientId)
     {
         var msg = new SigOnLeftRoomMessage
         {
             SigName = SigNameOnLeftRoom,
+            Token = token,
             ClientId = clientId,
             RoomId = room.Id,
             Clients = room.GetClients(),
@@ -386,11 +376,12 @@ public class SignalMessage
         return JsonSerializer.Serialize(msg);
     }
 
-    public static string MakeOnRemoteClientLeftMessage(Room room, string leftClientId)
+    public static string MakeOnRemoteClientLeftMessage(string token, Room room, string leftClientId)
     {
         var msg = new SigOnRemoteLeftRoomMessage
         {
             SigName = SigNameOnRemoteLeftRoom,
+            Token = token,
             RemoteClientId = leftClientId,
             RoomId = room.Id,
             Clients = room.GetClients()
@@ -399,11 +390,12 @@ public class SignalMessage
     }
     
     // MakeOnInvitedToRoomMessage 通知被邀请者，已经加入Room了
-    public static string MakeOnInvitedToRoomMessage(Room room, string invitorClientId, string selfId)
+    public static string MakeOnInvitedToRoomMessage(string token, Room room, string invitorClientId, string selfId)
     {
         var msg = new SigOnInvitedToRoomMessage
         {
             SigName = SigNameOnInvitedToRoom,
+            Token = token,
             InvitorClientId = invitorClientId,
             SelfClientId = selfId,
             RoomId = room.Id,
@@ -413,11 +405,12 @@ public class SignalMessage
     }
     
     // MakeOnRemoteInvitedToRoomMessage 通知到发起邀请者,对方已经被邀请进Room了
-    public static string MakeOnRemoteInvitedToRoomMessage(Room room, string clientId, string remoteClientId)
+    public static string MakeOnRemoteInvitedToRoomMessage(string token, Room room, string clientId, string remoteClientId)
     {
         var msg = new SigOnRemoteInvitedToRoomMessage
         {
             SigName = SigNameOnRemoteInvitedToRoom,
+            Token = token,
             ClientId = clientId,
             RemoteClientId = remoteClientId,
             RoomId = room.Id,
