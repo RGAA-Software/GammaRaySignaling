@@ -1,3 +1,4 @@
+using System.Net;
 using GammaRaySignaling;using GammaRaySignaling.Controllers;
 using GammaRaySignaling.Websocket;
 using AppContext = GammaRaySignaling.AppContext;
@@ -23,6 +24,14 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 5001, listenOptions =>
+    {
+        listenOptions.UseHttps("./Cert/syxmsg.xyz.pfx", "jt182l0laf75v1");
+    });
+});
 
 var app = builder.Build();
 
