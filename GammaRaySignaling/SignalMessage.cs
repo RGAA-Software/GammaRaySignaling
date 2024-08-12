@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Newtonsoft.Json;
 
 namespace GammaRaySignaling;
 
@@ -55,22 +55,35 @@ public class SignalMessage
     
     public class SigBaseMessage
     {
+        [JsonProperty("sig_name")]
         public string SigName = "";
+        
+        [JsonProperty("token")]
         public string Token = "";
+        
+        [JsonProperty("origin_message")]
         public string OriginMessage = "";
     }
     
     public class SigErrorMessage : SigBaseMessage
     {
+        [JsonProperty("sig_code")]
         public int SigCode;
+        
+        [JsonProperty("sig_info")]
         public string SigInfo = "";
     }
 
     // SigHelloMessage hello消息
     // client -> server
     public class SigHelloMessage : SigBaseMessage {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("platform")]
         public string Platform = "";
+        
+        [JsonProperty("allow_resend")]
         public bool AllowReSend = false;
     }
     
@@ -78,6 +91,7 @@ public class SignalMessage
     // server -> client
     public class SigOnHelloMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
     }
     
@@ -85,7 +99,10 @@ public class SignalMessage
     // client -> server
     public class SigCreateRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
     }
     
@@ -93,10 +110,19 @@ public class SignalMessage
     // server -> client
     public class SigOnCreatedRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("platform")]
         public string Platform = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
     
@@ -104,8 +130,13 @@ public class SignalMessage
     // client -> server
     public class SigJoinRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
     
@@ -113,9 +144,16 @@ public class SignalMessage
     // server -> client
     public class SigOnJoinedRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
     
@@ -123,8 +161,13 @@ public class SignalMessage
     // server -> client
     public class SigOnRemoteJoinedRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
     
@@ -132,7 +175,10 @@ public class SignalMessage
     // client -> server
     public class SigLeaveRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
     
@@ -140,8 +186,13 @@ public class SignalMessage
     // server -> client
     public class SigOnLeftRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
 
@@ -149,8 +200,13 @@ public class SignalMessage
     // server -> client
     public class SigOnRemoteLeftRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
 
@@ -158,8 +214,13 @@ public class SignalMessage
     // client -> server
     public class SigInviteClientMessage : SigBaseMessage  
     {
+        [JsonProperty("client_id")]
         public string ClientId = ""; 
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = ""; 
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
     
@@ -167,9 +228,16 @@ public class SignalMessage
     // server -> peer client
     public class SigOnInvitedToRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("invitor_client_id")]
         public string InvitorClientId = "";
+        
+        [JsonProperty("self_client_id")]
         public string SelfClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
     
@@ -177,9 +245,16 @@ public class SignalMessage
     // server -> request client
     public class SigOnRemoteInvitedToRoomMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("clients")]
         public List<Client> Clients = [];
     }
     
@@ -187,8 +262,13 @@ public class SignalMessage
     // client -> server
     public class SigHeartBeatMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("index")]
         public long Index = 0;
+        
+        [JsonProperty("platform")]
         public string Platform = "";
     }
     
@@ -196,8 +276,13 @@ public class SignalMessage
     // server -> client
     public class SigOnHeartBeatMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("index")]
         public long Index = 0;
+        
+        [JsonProperty("platform")]
         public string Platform = "";
     }
 
@@ -205,8 +290,13 @@ public class SignalMessage
     // client -> server -> remote client
     public class SigOfferSdpMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("sdp")]
         public string Sdp = "";
     }
     
@@ -214,8 +304,13 @@ public class SignalMessage
     // remote client -> server -> client
     public class SigAnswerSdpMessage : SigBaseMessage 
     {
-        public string  ClientId = "";
+        [JsonProperty("client_id")]
+        public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("sdp")]
         public string Sdp = "";
     }
     
@@ -223,10 +318,19 @@ public class SignalMessage
     // client <---> remote client
     public class SigIceMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
+        
+        [JsonProperty("ice")]
         public string Ice = "";
+        
+        [JsonProperty("mid")]
         public string Mid = "";
+        
+        [JsonProperty("sdp_m_line_index")]
         public long SdpMLineIndex = 0;
     }
 
@@ -234,51 +338,76 @@ public class SignalMessage
     // client <---> remote client
     public class SigForceIFrameMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
     
     // SigCommandMessage 控制或命令
     public class SigCommandMessage : SigBaseMessage 
     {
+        [JsonProperty("command")]
         public string Command = "";
+        
+        [JsonProperty("extra")]
         public Dictionary<string, string>? Extra = null;
     }
     
     // SigOnCommandResponseMessage 执行结果
     public class SigOnCommandResponseMessage : SigBaseMessage 
     {
+        [JsonProperty("command")]
         public string Command = "";
+        
+        [JsonProperty("info")]
         public Dictionary<string, string>? Info = null;
     }
     
     // SigReqControlMessage client -> server 请求控制
     public class SigReqControlMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("remote_client_id")]
         public string RemoteClientId = "";
     }
     
     // SigUnderControlMessage server -> client 请求控制
     public class SigUnderControlMessage : SigBaseMessage 
     {
+        [JsonProperty("self_client_id")]
         public string SelfClientId = "";
+        
+        [JsonProperty("controller_client_id")]
         public string ControllerId = "";
     }
     
     // SigOnRemoteDataChannelReadyMessage server -> client 数据通道已经建立
     public class SigOnRemoteDataChannelReadyMessage : SigBaseMessage 
     {
+        [JsonProperty("self_client_id")]
         public string SelfClientId = "";
+        
+        [JsonProperty("controller_client_id")]
         public string ControllerId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
     
     // SigOnRejectControlMessage server -> client
     public class SigOnRejectControlMessage : SigBaseMessage 
     {
+        [JsonProperty("client_id")]
         public string ClientId = "";
+        
+        [JsonProperty("controller_client_id")]
         public string ControllerId = "";
+        
+        [JsonProperty("room_id")]
         public string RoomId = "";
     }
 
@@ -296,7 +425,7 @@ public class SignalMessage
             SigCode = code,
             SigInfo = info
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnHelloMessage(string token, string clientId)
@@ -307,7 +436,7 @@ public class SignalMessage
             Token = token,
             ClientId = clientId,
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnCreatedRoomMessage(string token, string clientId, string remoteClientId, Room room)
@@ -321,7 +450,7 @@ public class SignalMessage
             RoomId = room.Id,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnHeartBeatMessage(SigHeartBeatMessage hbMsg)
@@ -333,7 +462,7 @@ public class SignalMessage
             ClientId = hbMsg.ClientId,
             Index = hbMsg.Index
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnJoinedRoomMessage(string token, Room room, string clientId, string remoteClientId)
@@ -347,7 +476,7 @@ public class SignalMessage
             RemoteClientId = remoteClientId,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnRemoteJoinedRoomMessage(string token, Room room, string remoteClientId)
@@ -360,7 +489,7 @@ public class SignalMessage
             RemoteClientId = remoteClientId,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnLeftRoomMessage(string token, Room room, string clientId)
@@ -373,7 +502,7 @@ public class SignalMessage
             RoomId = room.Id,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnRemoteClientLeftMessage(string token, Room room, string leftClientId)
@@ -386,7 +515,7 @@ public class SignalMessage
             RoomId = room.Id,
             Clients = room.GetClients()
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
     
     // MakeOnInvitedToRoomMessage 通知被邀请者，已经加入Room了
@@ -401,7 +530,7 @@ public class SignalMessage
             RoomId = room.Id,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
     
     // MakeOnRemoteInvitedToRoomMessage 通知到发起邀请者,对方已经被邀请进Room了
@@ -416,11 +545,11 @@ public class SignalMessage
             RoomId = room.Id,
             Clients = room.GetClients(),
         };
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 
     public static string MakeOnCommandResponseMessage(SigOnCommandResponseMessage msg)
     {
-        return JsonSerializer.Serialize(msg);
+        return JsonConvert.SerializeObject(msg);
     }
 }

@@ -1,16 +1,31 @@
 ﻿using System.Net.WebSockets;
 using GammaRaySignaling.Websocket;
+using Newtonsoft.Json;
+using Serilog;
 
 namespace GammaRaySignaling;
 
 public class Client
 {
+    [JsonProperty("id")]
     public string Id = "";
+    
+    [JsonProperty("token")]
     public string Token = "";
+    
+    [JsonProperty("name")]
     public string Name = "";
+    
+    [JsonProperty("role")]
     public string Role = "";
+    
+    [JsonProperty("platform")]
     public string Platform = "";
+    
+    [JsonProperty("room_id")]
     public string RoomId = "";
+    
+    [JsonProperty("update_timestamp")]
     public long UpdateTimestamp = 0;
     private WebSocketHandler? _wsHandler = null;
 
@@ -19,12 +34,14 @@ public class Client
         _wsHandler = socket;
     }
     
-    public async void Notify(string msg)
+    public void Notify(string msg)
     {
         if (_wsHandler == null)
         {
+            Log.Error("Empty ws handler.");
             return;
         }
+        Log.Information("Send back: " + msg);
         _wsHandler.SendMessage(msg);
     }
 
@@ -37,6 +54,7 @@ public class Client
         }
 
         var backMsg = SignalMessage.MakeOnHeartBeatMessage(msg);
+        Console.WriteLine("OnHeartBeat: " + backMsg);
         SendMessage(backMsg);
     }
 

@@ -55,6 +55,6 @@ public class Errors
 
     public static string MakeKnownErrorMessage(int code)
     {
-        return Common.MakeJsonMessage(code, ErrorString(code), new Dictionary<string, string>());
+        return Common.MakeJsonMessage(code, ErrorString(code), new Dictionary<string, object>());
     }
 }

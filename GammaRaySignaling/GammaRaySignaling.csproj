@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Nunit.Framework.TestCaseStorage" Version="1.0.1" />
         <PackageReference Include="Serilog" Version="4.0.2-dev-02220" />
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />

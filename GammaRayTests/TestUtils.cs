@@ -18,7 +18,7 @@ public class Tests
     [Test]
     public void TestRespJsonMessage()
     {
-        Console.WriteLine("" + Common.MakeJsonMessage(200, "OKOK", new Dictionary<string, string>
+        Console.WriteLine("" + Common.MakeJsonMessage(200, "OKOK", new Dictionary<string, object>
         {
             {"Name", "Jack Sparrow"},
             {"Age", "I don't known"}

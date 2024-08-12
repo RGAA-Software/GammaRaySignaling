@@ -1,12 +1,21 @@
-﻿namespace GammaRaySignaling;
+﻿using Newtonsoft.Json;
+
+namespace GammaRaySignaling;
 
 public class Room
 {
+    [JsonProperty("id")]
     public string Id = "";
+    
+    [JsonProperty("name")]
     public string Name = "";
+    
+    [JsonProperty("clients")]
     private readonly Dictionary<string, Client> _clients = new Dictionary<string, Client>();
-    private readonly object _clientMutex = new object(); 
-
+    
+    private readonly object _clientMutex = new object();
+    private bool _alreadyUsed = false;
+    
     public void AddClient(Client client)
     {
         lock (_clientMutex)
@@ -14,10 +23,12 @@ public class Room
             if (_clients.ContainsKey(client.Id))
             {
                 // todo: warn it
-                client.Close();
-                _clients.Remove(client.Id);
+                // client.Close();
+                // _clients.Remove(client.Id);
             }
             _clients[client.Id] = client;
+
+            _alreadyUsed = true;
         }
     }
 
@@ -27,8 +38,8 @@ public class Room
         {
             if (_clients.ContainsKey(clientId))
             {
-                var client = _clients[clientId];
-                client.Close();
+                //var client = _clients[clientId];
+                //client.Close();
                 _clients.Remove(clientId);
             }
         }
@@ -89,5 +100,18 @@ public class Room
             });
         }
         return targetClients;
+    }
+
+    public bool IsAlreadyUsed()
+    {
+        return _alreadyUsed;
+    }
+
+    public bool Empty()
+    {
+        lock (_clientMutex)
+        {
+            return _clients.Count <= 0;
+        }
     }
 }

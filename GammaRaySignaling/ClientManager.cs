@@ -7,28 +7,14 @@ namespace GammaRaySignaling;
 public class ClientManager
 {
     private AppContext _context;
-    private readonly Timer _timer;
-    private readonly object _clientsMutex = new object();
-    private readonly Dictionary<string, Client> _clients = new Dictionary<string, Client>();
+    private readonly object _clientsMutex = new();
+    private readonly Dictionary<string, Client> _clients = new();
     
     public ClientManager(AppContext ctx)
     {
         _context = ctx;
-
-        _timer = new Timer();
-        _timer.AutoReset = true;
-        _timer.Interval = 2000;
-        _timer.Enabled = true;
-        _timer.Elapsed += OnTimerOut;
-        _timer.Start();
     }
-
-    private void OnTimerOut(object? sender, ElapsedEventArgs e)
-    {
-        Log.Information("timer out..." + e.SignalTime);
-        TidyClientByOnlineStatus();
-    }
-
+    
     public void AddClient(Client client)
     {
         lock (_clientsMutex)
@@ -65,7 +51,7 @@ public class ClientManager
         }
     }
     
-    private void TidyClientByOnlineStatus()
+    public void CleanOfflineClients()
     {
         lock (_clientsMutex)
         {
@@ -81,6 +67,7 @@ public class ClientManager
             foreach (var removeId in toRemoveIds)
             {
                 _clients.Remove(removeId);
+                Log.Information("Clean offline client: " + removeId);
             }
         }
     }

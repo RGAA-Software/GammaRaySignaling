@@ -15,13 +15,15 @@ Log.Logger = new LoggerConfiguration()
 Log.Information("Info");
 
 var builder = WebApplication.CreateBuilder(args);
+
+// app context
 var appContext = new AppContext();
 appContext.Init();
 
-// Add services to the container.
+// system monitor
+var systemMonitor = new SystemMonitor(appContext);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -35,6 +37,10 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
+// http handler
+var httpHandler = new HttpHandler(appContext, app);
+httpHandler.RegisterHandlers();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -46,14 +52,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.UseWebSockets();
-
-app.MapGet("/ping", () => 
-{
-    return Common.MakeOkJsonMessage(new Dictionary<string, string>
-    {
-        {"message", "pong"},
-    }); 
-}).WithName("ping");
 
 app.Use(async (context, next) =>
 {

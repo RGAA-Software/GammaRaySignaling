@@ -1,4 +1,6 @@
-﻿namespace GammaRaySignaling;
+﻿using Serilog;
+
+namespace GammaRaySignaling;
 
 public class RoomManager(AppContext ctx)
 {
@@ -82,6 +84,27 @@ public class RoomManager(AppContext ctx)
         lock (_roomsMutex)
         {
             _rooms.Remove(roomId);
+        }
+    }
+
+    public void CleanEmptyRooms()
+    {
+        lock (_roomsMutex)
+        {
+            var toRemoveRooms = new List<string>();
+            foreach (var pair in _rooms)
+            {
+                var room = pair.Value;
+                if (room.IsAlreadyUsed() && room.Empty())
+                {
+                    toRemoveRooms.Add(pair.Key);
+                }
+            }
+            foreach (var roomId in toRemoveRooms)
+            {
+                _rooms.Remove(roomId);
+                Log.Information("Clean room:" + roomId);
+            }
         }
     }
 }

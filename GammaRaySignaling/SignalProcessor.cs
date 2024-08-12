@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using GammaRaySignaling.Websocket;
 using Serilog;
+using Newtonsoft.Json;
 
 namespace GammaRaySignaling;
 
@@ -21,37 +23,49 @@ public class SignalProcessor
         _client = new Client();
         _client.SetWebSocket(handler);
     }
-    
-    public bool ParseMessage(string message)
+
+    private static string GetStringValue(Dictionary<string, object> obj, string key)
+    {
+        var v = obj[key].ToString();
+        return v ?? "";
+    }
+
+    private static long GetInt64Value(Dictionary<string, object> obj, string key)
+    {
+        var v = Convert.ToInt64(obj[key]);
+        return v;
+    }
+
+    public bool ParseMessage(string message, WebSocketHandler wsHandler)
     {
         try
         {
-            var jsonObject = JsonSerializer.Deserialize<dynamic>(message);
+            var jsonObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(message);
             if (jsonObject == null)
             {
-                Log.Error("Null json object: " + message);
                 return false;
             }
-
-            var sigName = jsonObject[SignalMessage.KeySigName];
-            var token = jsonObject[SignalMessage.KeyToken];
+            
+            var sigName = jsonObject[SignalMessage.KeySigName].ToString();
+            var token = jsonObject[SignalMessage.KeyToken].ToString();
+            Console.WriteLine("///sigName: " + sigName + ", token: " + token);
             
             if (sigName == SignalMessage.SigNameHello)
             {
                 // hello
                 var allowReSend = false;
-                if (jsonObject.TryGetProperty(SignalMessage.KeyAllowReSend, out JsonElement ele))
+                if (jsonObject.ContainsKey(SignalMessage.KeyAllowReSend))
                 {
-                    allowReSend = ele.GetBoolean();
+                    allowReSend = Convert.ToBoolean(jsonObject[SignalMessage.KeyAllowReSend]);
                 }
                 _onSigHelloCbk(new SignalMessage.SigHelloMessage
                 {
                     SigName = sigName,
                     Token = token,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    Platform = jsonObject[SignalMessage.KeyPlatform],
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    Platform = GetStringValue(jsonObject, SignalMessage.KeyPlatform),
                     AllowReSend = allowReSend,
-                });
+                }, wsHandler);
                 
             } else if (sigName == SignalMessage.SigNameCreateRoom)
             {
@@ -60,8 +74,8 @@ public class SignalProcessor
                 {
                     SigName = sigName,
                     Token = token,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RemoteClientId = jsonObject[SignalMessage.KeyRemoteClientId],
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RemoteClientId = GetStringValue(jsonObject, SignalMessage.KeyRemoteClientId),
                 });
                 
             } else if (sigName == SignalMessage.SigNameJoinRoom)
@@ -72,9 +86,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RemoteClientId = jsonObject[SignalMessage.KeyRemoteClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RemoteClientId = GetStringValue(jsonObject, SignalMessage.KeyRemoteClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId)
                 });
                 
             } else if (sigName == SignalMessage.SigNameInviteClient)
@@ -84,9 +98,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RemoteClientId = jsonObject[SignalMessage.KeyRemoteClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RemoteClientId = GetStringValue(jsonObject, SignalMessage.KeyRemoteClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId)
                 });
             } 
             else if (sigName == SignalMessage.SigNameLeaveRoom)
@@ -96,8 +110,8 @@ public class SignalProcessor
                 {
                     SigName = sigName,
                     Token = token,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
                 });
                 
             } else if (sigName == SignalMessage.SigNameHeartBeat)
@@ -107,8 +121,8 @@ public class SignalProcessor
                 {
                     SigName = sigName,
                     Token = token,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    Index = jsonObject[SignalMessage.KeyIndex]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    Index = GetInt64Value(jsonObject, SignalMessage.KeyIndex)
                 });
                 
             } else if (sigName == SignalMessage.SigNameOfferSdp)
@@ -119,9 +133,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
-                    Sdp = jsonObject[SignalMessage.KeySdp]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
+                    Sdp = GetStringValue(jsonObject, SignalMessage.KeySdp)
                 });
                 
             } else if (sigName == SignalMessage.SigNameAnswerSdp)
@@ -132,9 +146,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
-                    Sdp = jsonObject[SignalMessage.KeySdp]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
+                    Sdp = GetStringValue(jsonObject, SignalMessage.KeySdp)
                 });
 
             } else if (sigName == SignalMessage.SigNameIce)
@@ -145,11 +159,11 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
-                    Ice = jsonObject[SignalMessage.KeyIce],
-                    Mid = jsonObject[SignalMessage.KeyMid],
-                    SdpMLineIndex = jsonObject[SignalMessage.KeySdpMLineIndex]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
+                    Ice = GetStringValue(jsonObject, SignalMessage.KeyIce),
+                    Mid = GetStringValue(jsonObject, SignalMessage.KeyMid),
+                    SdpMLineIndex = GetInt64Value(jsonObject, SignalMessage.KeySdpMLineIndex)
                 });
                 
             } else if (sigName == SignalMessage.SigNameForceIFrame)
@@ -160,8 +174,8 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
                 });
                 
             } else if (sigName == SignalMessage.SigNameReqControl)
@@ -172,8 +186,8 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RemoteClientId = jsonObject[SignalMessage.KeyRemoteClientId],
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RemoteClientId = GetStringValue(jsonObject, SignalMessage.KeyRemoteClientId),
                 });
 
             } else if (sigName == SignalMessage.SigNameUnderControl)
@@ -184,8 +198,8 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    SelfClientId = jsonObject[SignalMessage.KeySelfClientId],
-                    ControllerId = jsonObject[SignalMessage.KeyControlClientId],
+                    SelfClientId = GetStringValue(jsonObject, SignalMessage.KeySelfClientId),
+                    ControllerId = GetStringValue(jsonObject, SignalMessage.KeyControlClientId),
                 });
                 
             } else if (sigName == SignalMessage.SigNameOnDataChannelReady)
@@ -196,9 +210,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    SelfClientId = jsonObject[SignalMessage.KeySelfClientId],
-                    ControllerId = jsonObject[SignalMessage.KeyControlClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId]
+                    SelfClientId = GetStringValue(jsonObject, SignalMessage.KeySelfClientId),
+                    ControllerId = GetStringValue(jsonObject, SignalMessage.KeyControlClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId)
                 });
 
             } else if (sigName == SignalMessage.SigNameOnRejectControl)
@@ -209,9 +223,9 @@ public class SignalProcessor
                     SigName = sigName,
                     Token = token,
                     OriginMessage = message,
-                    ClientId = jsonObject[SignalMessage.KeyClientId],
-                    RoomId = jsonObject[SignalMessage.KeyRoomId],
-                    ControllerId = jsonObject[SignalMessage.KeyControlClientId]
+                    ClientId = GetStringValue(jsonObject, SignalMessage.KeyClientId),
+                    RoomId = GetStringValue(jsonObject, SignalMessage.KeyRoomId),
+                    ControllerId = GetStringValue(jsonObject, SignalMessage.KeyControlClientId)
                 });
             }
 
@@ -219,7 +233,8 @@ public class SignalProcessor
         }
         catch (Exception e)
         {
-            Log.Error("Parse json failed: " + e.Message + ", msg: " + message);
+            Log.Error("Parse json failed: " + e.StackTrace + ", msg: " + e.Message);
+            Console.WriteLine("Parse json failed: " + e.StackTrace + ", msg: " + message);
             return false;
         }
     }
@@ -245,12 +260,13 @@ public class SignalProcessor
         return false;
     }
 
-    private void _onSigHelloCbk(SignalMessage.SigHelloMessage msg)
+    private void _onSigHelloCbk(SignalMessage.SigHelloMessage msg, WebSocketHandler wsHandler)
     {
         if (!IsClientIdOk(msg.ClientId, "Hello")) return;
         
         if (_clientManager.IsClientOnline(msg.ClientId) && !msg.AllowReSend)
         {
+            Log.Error("You need to AllowResend.");
             _handler.SendMessage(Errors.MakeKnownErrorMessage(Errors.ErrAlreadyLogin));
             return;
         }
@@ -261,6 +277,9 @@ public class SignalProcessor
         _client.UpdateTimestamp = Common.GetCurrentTimestamp();
         _clientManager.AddClient(_client);
         _client.Notify(SignalMessage.MakeOnHelloMessage(_client.Token, _client.Id));
+        
+        wsHandler.AssociateWith(_client);
+        Log.Information("OnHello: " + _client.ToString());
     }
 
     private void _onSigCreateRoomCbk(SignalMessage.SigCreateRoomMessage msg)

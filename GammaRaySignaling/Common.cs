@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace GammaRaySignaling;
 
@@ -29,7 +30,7 @@ public class Common
         return sb.ToString();
     }
 
-    public static string MakeJsonMessage(int code, string msg, Dictionary<string, string> value)
+    public static string MakeJsonMessage(int code, string msg, Dictionary<string, object> value)
     {
         var resp = new Dictionary<string, object>
         {
@@ -37,10 +38,10 @@ public class Common
             {"msg", msg},
             {"value", value}
         };
-        return JsonSerializer.Serialize(resp);
+        return JsonConvert.SerializeObject(resp);
     }
 
-    public static string MakeOkJsonMessage(Dictionary<string, string> value)
+    public static string MakeOkJsonMessage(Dictionary<string, object> value)
     {
         return MakeJsonMessage(200, "Ok", value);
     }
